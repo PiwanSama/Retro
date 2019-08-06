@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Retro</string>
     <string name="title">title</string>
+    <string name="space"> </string>
 </resources>

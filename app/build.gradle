@@ -15,18 +15,17 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled true
-            shrinkResources true
+            minifyEnabled false
+            shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-
-   /* android{
-        dataBinding{
+    android {
+        dataBinding {
             enabled = true
         }
-    }*/
-}
+    }
+    }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
@@ -62,4 +61,5 @@ dependencies {
     */
     implementation 'io.reactivex.rxjava2:rxjava:2.1.13'
     implementation 'io.reactivex.rxjava2:rxandroid:2.0.2'
+
 }
