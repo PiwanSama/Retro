@@ -1,8 +1,9 @@
 package com.example.retro.adapters;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.paging.PagedListAdapter;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,22 +13,21 @@ import android.widget.TextView;
 
 import com.example.retro.R;
 import com.example.retro.models.RetroPhoto;
+import com.example.retro.utils.NetworkState;
 import com.squareup.picasso.OkHttp3Downloader;
 import com.squareup.picasso.Picasso;
 
-import java.util.List;
+public class PhotolistAdapter extends PagedListAdapter <RetroPhoto, RecyclerView.ViewHolder> {
 
-public class CustomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-
-    private List<RetroPhoto> dataList;
     private Context context;
+    private NetworkState networkState;
 
-    private final int VIEW_TYPE_ITEM = 0;
-    private final int VIEW_TYPE_LOADING = 1;
+    private final int VIEW_TYPE_LOADING = 0;
+    private final int VIEW_TYPE_ITEM = 1;
 
-    public CustomAdapter(Context context,List<RetroPhoto> dataList){
+    public PhotolistAdapter(Context context){
+        super(RetroPhoto.DIFF_CALLBACK);
         this.context = context;
-        this.dataList = dataList;
     }
 
     @NonNull
@@ -57,6 +57,16 @@ public class CustomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        if (hasExtraRow() && position == getItemCount() -1){
+            return VIEW_TYPE_LOADING;
+        }
+        else {
+            return VIEW_TYPE_ITEM;
+        }
+    }
+
     class MovieViewHolder extends RecyclerView.ViewHolder {
 
         public final View mView;
@@ -84,20 +94,31 @@ public class CustomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
     }
 
-    @Override
-    public int getItemCount() {
-        return dataList == null ? 0 : dataList.size();
+    private boolean hasExtraRow(){
+        if (networkState!=null && networkState != NetworkState.LOADED){
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
-    /**
-     * The following method decides the type of ViewHolder to display in the RecyclerView
-     *
-     * @param position
-     * @return
-     */
-    @Override
-    public int getItemViewType(int position) {
-        return dataList.get(position) == null ? VIEW_TYPE_LOADING : VIEW_TYPE_ITEM;
+    public void setNetworkState (NetworkState newNetworkState){
+        NetworkState previousState = this.networkState;
+        boolean previousExtraRow = hasExtraRow();
+        this.networkState = newNetworkState;
+        boolean newExtraRow = hasExtraRow();
+        if (previousExtraRow!=newExtraRow){
+            if (previousExtraRow){
+                notifyItemRemoved(getItemCount());
+            }
+            else {
+                notifyItemInserted(getItemCount());
+            }
+        }
+        else if (newExtraRow && previousState != newNetworkState){
+            notifyItemChanged(getItemCount() -1);
+        }
     }
 
     private void showLoadingView(LoadingViewHolder viewHolder, int position){
@@ -105,10 +126,10 @@ public class CustomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
     private void populateItemRows(MovieViewHolder viewHolder, int position){
-        viewHolder.txtTitle.setText(dataList.get(position).getTitle());
+        viewHolder.txtTitle.setText(getItem(position).getTitle());
         Picasso.Builder builder = new Picasso.Builder(context);
         builder.downloader(new OkHttp3Downloader(context));
-        builder.build().load(dataList.get(position).getThumbnailUrl())
+        builder.build().load(getItem(position).getThumbnailUrl())
                 .placeholder((R.drawable.ic_launcher_background))
                 .error(R.drawable.ic_launcher_background)
                 .into(viewHolder.coverImage);
