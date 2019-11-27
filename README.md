@@ -1,6 +1,6 @@
 # Retro
 
-A sample app that demonstrates the use of the Paging Library from Android Jetpack
+A sample app that demonstrates the use of the Paging Library from the Android Jetpack Library
 
 ## Tools Used
 - Android Paging Library
