@@ -10,7 +10,6 @@ A sample app that demonstrates the use of the Paging Library from the Android Je
 - RetroFit
 - OkHttp
 - Picasso
-- RetroFit
 
 ## API Used
 - https://reqres.in/api/users
